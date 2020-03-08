@@ -1,0 +1,12 @@
+.container {
+    width: 60px;
+    height: 20px;
+}
+
+.block {
+    background: black;
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+    border: white solid 1px;
+}

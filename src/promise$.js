@@ -1,0 +1,98 @@
+// todo возврат Promise из then/catch/resolve
+// todo Promise.all
+// todo Promise.race
+
+export class Promise$ {
+    constructor(callback) {
+        this._status = 0; // 0 - pending, 1 - resolved, 2 - rejected
+        this._value = null;
+        this._reject = this._reject.bind(this);
+        this._resolve = this._resolve.bind(this);
+        this._onHandle = this._noop;
+
+        if (callback) {
+            this._handle(callback);
+        } else {
+            throw new Error('Callback is not defined!');
+        }
+    }
+
+    static resolve(value) {
+        return new Promise$(resolve => resolve(value));
+    }
+
+    static reject(value) {
+        return new Promise$((resolve, reject) => reject(value));
+    }
+
+    _noop() {}
+
+    _handle(callback) {
+        try {
+            callback(this._resolve, this._reject);
+        } catch (e) {
+            this._reject(e);
+        }
+    }
+
+    _resolve(value) {
+        this._value = value;
+        this._status = 1;
+        this._onHandle();
+    }
+
+    _reject(err) {
+        this._value = err;
+        this._status = 2;
+        this._onHandle();
+    }
+
+    then(successCallback, rejectCallback) {
+        successCallback = successCallback || this._noop;
+        rejectCallback = rejectCallback || this._noop;
+        return this._returnNewPromiseAndHandleCallback(successCallback, rejectCallback);
+    }
+
+    _returnNewPromiseAndHandleCallback(successCb, rejectCb, finallyCb) {
+        return new Promise$((resolve, reject) => {
+            if (this._status === 0) {
+                this._onHandle = () => {
+                    this._asyncExecuteCallbackAndResolve(successCb, rejectCb, resolve, reject, finallyCb);
+                }
+            } else {
+                this._asyncExecuteCallbackAndResolve(successCb, rejectCb, resolve, reject, finallyCb);
+            }
+        });
+    }
+
+    _asyncExecuteCallbackAndResolve(successCb, rejectCb, resolve, reject, finallyCb) {
+        setTimeout(() => {
+            try {
+                let callbackResult;
+                if (this._status === 1) {
+                    callbackResult = successCb(this._value);
+                } else {
+                    callbackResult = rejectCb(this._value);
+                }
+
+                resolve(callbackResult);
+            } catch (e) {
+                reject(e);
+            } finally {
+                if (finallyCb) {
+                    finallyCb();
+                }
+            }
+        });
+    }
+
+    catch(errorCb) {
+        return this.then(null, errorCb);
+    }
+
+    finally(finallyCb) {
+        const successCb = () => this._value;
+        const rejectCb = () => this._value;
+        return this._returnNewPromiseAndHandleCallback(successCb, rejectCb, finallyCb);
+    }
+}
