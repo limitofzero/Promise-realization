@@ -58,15 +58,19 @@ export class Promise$ {
     }
 
     _resolve(value) {
-        this._value = value;
-        this._status = 1;
-        this._onHandle();
+        if (this._status === 0) {
+            this._value = value;
+            this._status = 1;
+            this._onHandle();
+        }
     }
 
     _reject(err) {
-        this._value = err;
-        this._status = 2;
-        this._onHandle();
+        if (this._status === 0) {
+            this._value = err;
+            this._status = 2;
+            this._onHandle();
+        }
     }
 
     then(successCallback, rejectCallback) {
