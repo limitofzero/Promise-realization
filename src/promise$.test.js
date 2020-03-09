@@ -18,7 +18,7 @@ describe('test Promise$', () => {
             resolve(2);
             resolve(3);
         }).then(value => {
-            expect(value).toBe(1)
+            expect(value).toBe(1);
         });
     });
 
@@ -143,6 +143,32 @@ describe('test Promise$', () => {
         const expected = [0, 1, 2];
         return Promise$.all([first, second, third]).catch(error => {
             expect(error).toBe(2);
+        });
+    });
+
+    test('test Promise$.race', () => {
+        const first = new Promise$((resolve, reject) => {
+            setTimeout(() => resolve(1))
+        });
+        const second = new Promise$(resolve => {
+            setTimeout(() => resolve(2), 1000);
+        });
+
+        return Promise$.race([first, second]).then(error => {
+            expect(error).toBe(1);
+        });
+    });
+
+    test('test Promise$.race with reject', () => {
+        const first = new Promise$((resolve, reject) => {
+            setTimeout(() => reject(1))
+        });
+        const second = new Promise$(resolve => {
+            setTimeout(() => resolve(2), 1000);
+        });
+
+        return Promise$.race([first, second]).catch(error => {
+            expect(error).toBe(1);
         });
     });
 })
