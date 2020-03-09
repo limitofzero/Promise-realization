@@ -25,6 +25,28 @@ export class Promise$ {
         return new Promise$((resolve, reject) => reject(value));
     }
 
+    static all(promises) {
+        const length = promises.length;
+        const resolved = new Array(length);
+        let resolvedCount = 0;
+
+        return new Promise$((resolve, reject) => {
+            if (promises.length === 0) {
+                resolve(resolved);
+            }
+
+            promises.forEach((promise, index) => {
+                promise.then(value => resolved[index] = value)
+                    .then(() => {
+                        if (++resolvedCount === promises.length) {
+                            resolve(resolved);
+                        }
+                    })
+                    .catch(e => reject(e));
+            });
+        });
+    }
+
     _noop() {}
 
     _handle(callback) {

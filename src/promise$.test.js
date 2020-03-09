@@ -99,6 +99,42 @@ describe('test Promise$', () => {
         Promise$.resolve(2).finally(() => {})
             .then(value => expect(value).toBe(2));
     });
+
+    test('test Promise$.all with empty array', () => {
+        return Promise$.all([]).then(resolved => {
+            expect(resolved).toEqual([])
+        });
+    });
+
+    test('test Promise$.all with 3 promises', () => {
+        const first = Promise$.resolve(0);
+        const second = new Promise$(resolve => {
+            setTimeout(() => resolve(1))
+        });
+        const third = new Promise$(resolve => {
+            setTimeout(() => resolve(2), 1000);
+        });
+
+        const expected = [0, 1, 2];
+        return Promise$.all([first, second, third]).then(resolved => {
+            expect(resolved).toEqual(expected);
+        });
+    });
+
+    test('test Promise$.all with reject', () => {
+        const first = Promise$.resolve(0);
+        const second = new Promise$((resolve, reject) => {
+            setTimeout(() => reject(1))
+        });
+        const third = new Promise$(resolve => {
+            setTimeout(() => resolve(2), 1000);
+        });
+
+        const expected = [0, 1, 2];
+        return Promise$.all([first, second, third]).catch(error => {
+            expect(error).toBe(2);
+        });
+    });
 })
 
 
