@@ -1,6 +1,4 @@
 // todo возврат Promise из then/catch/resolve
-// todo Promise.all
-// todo Promise.race
 
 export class Promise$ {
     constructor(callback) {

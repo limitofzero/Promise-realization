@@ -12,6 +12,12 @@ describe('test Promise$', () => {
         expect(testValue).toBe(2);
     });
 
+    test('test resolve 2', () => {
+        return new Promise$(resolve => resolve(2)).then(value => {
+            expect(value).toBe(2);
+        });
+    });
+
     test('test ignore two resolve', () => {
         return new Promise$(resolve => {
             resolve(1);
@@ -22,9 +28,13 @@ describe('test Promise$', () => {
         });
     });
 
-    test('test resolve 2', () => {
-        return new Promise$(resolve => resolve(2)).then(value => {
-            expect(value).toBe(2);
+    test('test ignore two reject', () => {
+        return new Promise$((resolve, reject) => {
+            reject(1);
+            reject(2);
+            reject(3);
+        }).then(value => {
+            expect(value).toBe(1);
         });
     });
 
